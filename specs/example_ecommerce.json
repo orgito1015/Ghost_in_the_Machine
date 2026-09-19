@@ -1,0 +1,58 @@
+{
+  "name": "example-ecommerce",
+  "base_url": "https://httpbin.org",
+  "entry_states": ["LOGIN"],
+  "states": {
+    "LOGIN": {
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "default_data": {"username": "test_user", "password": "test_pass"},
+      "auth_context": "anonymous",
+      "extract": [
+        {"json_path": "$.json.username", "store_as": "session_user", "required": false}
+      ]
+    },
+    "ADD_TO_CART": {
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "default_data": {"item_id": 1, "qty": 1},
+      "auth_context": "authenticated",
+      "extract": [
+        {"json_path": "$.json.item_id", "store_as": "cart_item_id", "required": false}
+      ]
+    },
+    "APPLY_COUPON": {
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "default_data": {"coupon": "FREE100"},
+      "auth_context": "authenticated"
+    },
+    "ADDRESS_VERIFY": {
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "default_data": {"address_id": 42},
+      "auth_context": "authenticated"
+    },
+    "CONFIRM_ORDER": {
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "default_data": {"order_id": 999, "item_id": "{{cart_item_id}}"},
+      "auth_context": "authenticated",
+      "description": "Should only be reachable after ADDRESS_VERIFY in the legal flow."
+    },
+    "ADMIN_REFUND": {
+      "url": "https://httpbin.org/post",
+      "method": "POST",
+      "default_data": {"order_id": 999, "amount": 9999},
+      "auth_context": "admin",
+      "destructive": true,
+      "description": "High-value target: a low-priv session reaching this is a critical finding. Marked destructive so the fuzzer won't fire at it without --i-know-what-im-doing."
+    }
+  },
+  "transitions": [
+    {"from_state": "LOGIN", "to_state": "ADD_TO_CART"},
+    {"from_state": "ADD_TO_CART", "to_state": "APPLY_COUPON"},
+    {"from_state": "APPLY_COUPON", "to_state": "ADDRESS_VERIFY"},
+    {"from_state": "ADDRESS_VERIFY", "to_state": "CONFIRM_ORDER"}
+  ]
+}
