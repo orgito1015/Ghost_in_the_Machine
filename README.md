@@ -4,8 +4,8 @@ A stateful business-logic fuzzer for authorized security engagements.
 
 Instead of blind input fuzzing, it models an application's behavioral
 lifecycle as a **directed graph of states and legal transitions**, then
-systematically attempts *illegal* transitions — state-skips,
-step-reordering, privilege-boundary jumps — while carrying real session
+systematically attempts *illegal* transitions, state-skips,
+step-reordering, privilege-boundary jumps,  while carrying real session
 context and chained values forward.
 
 > **For authorized use only.** Run this only against systems you are
